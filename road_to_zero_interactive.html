@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Road to Zero — West Branch Library Case Study</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; background: #f5f4f0; color: #1a1a2e; padding: 32px 24px; min-height: 100vh; }
+  h1 { font-size: 20px; font-weight: 600; color: #1a1a2e; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #888; margin-bottom: 28px; }
+  .timeline-wrap { position: relative; padding: 0 0 20px; margin-bottom: 24px; }
+  .spine { display: flex; align-items: center; gap: 0; position: relative; }
+  .spine-line { flex: 1; height: 2px; background: #d3d1c7; }
+  .milestones { display: flex; justify-content: space-between; align-items: center; position: relative; }
+  .dot-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+  .dot { width: 52px; height: 52px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid; font-size: 10px; font-weight: 600; transition: transform 0.15s, box-shadow 0.15s; user-select: none; text-align: center; line-height: 1.2; padding: 4px; }
+  .dot:hover { transform: scale(1.08); }
+  .dot.active { transform: scale(1.12); box-shadow: 0 0 0 3px rgba(0,0,0,0.12); }
+  .dot-label { font-size: 11px; color: #888; }
+  .connector { flex: 1; height: 2px; background: #d3d1c7; }
+  .panel { border-radius: 12px; overflow: hidden; transition: all 0.2s; }
+  .panel-header { padding: 16px 20px 12px; }
+  .panel-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .panel-body { font-size: 13px; line-height: 1.7; opacity: 0.85; }
+  .panel-content { padding: 0 20px 16px; background: #fff; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .tag { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; border: 1px solid; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+  .stat { background: #f5f4f0; border-radius: 8px; padding: 10px 14px; }
+  .stat-num { font-size: 18px; font-weight: 600; }
+  .stat-lbl { font-size: 11px; color: #888; margin-top: 2px; }
+  .hint { text-align: center; font-size: 12px; color: #aaa; margin-top: 12px; }
+  .star-badge { display: inline-block; font-size: 11px; background: #e6f1fb; color: #185fa5; border: 1px solid #185fa5; border-radius: 20px; padding: 2px 10px; margin-bottom: 8px; font-weight: 600; }
+  footer { margin-top: 28px; font-size: 11px; color: #aaa; text-align: center; border-top: 1px solid #e0dfd9; padding-top: 14px; }
+</style>
+</head>
+<body>
+
+<h1>The Road to Zero</h1>
+<p class="subtitle">Key milestones for the built environment — CKAR500 Assignment 2 · West Branch Library Case Study</p>
+
+<div class="milestones" id="milestones" style="margin-bottom: 20px;">
+</div>
+
+<div id="panel"></div>
+<p class="hint" id="hint">Click any milestone to explore the data</p>
+
+<footer>Sources: IPCC 2023 &nbsp;·&nbsp; Architecture 2030 2023 &nbsp;·&nbsp; Wallis 2017 (High Performing Buildings) &nbsp;·&nbsp; IEA Net Zero 2050</footer>
+
+<script>
+const milestones = [
+  {
+    label: "~1750",
+    short: "Pre-\nindustrial",
+    color: "#993C1D",
+    bg: "#FAECE7",
+    textc: "#4A1B0C",
+    title: "Pre-industrial baseline",
+    body: "Before widespread fossil fuel combustion, atmospheric CO\u2082 sat at roughly 280 ppm and global average temperatures were stable. The energy balance was intact \u2014 outgoing infrared radiation matched incoming solar energy with no net forcing.",
+    stats: [
+      { num: "280 ppm", lbl: "Atmospheric CO\u2082" },
+      { num: "0\u00b0C", lbl: "Temperature anomaly" },
+      { num: "~0 W/m\u00b2", lbl: "Radiative forcing" }
+    ],
+    tags: []
+  },
+  {
+    label: "Today",
+    short: "Crisis\ntoday",
+    color: "#BA7517",
+    bg: "#FAEEDA",
+    textc: "#412402",
+    title: "The crisis we\u2019re in \u2014 2026",
+    body: "Fossil fuels still supply 84% of global primary energy. Buildings consume approximately one-third of it and produce nearly 40% of energy-related carbon emissions. CO\u2082 is at its highest level in 3 million years. Every year of inaction narrows the window to limit warming to 1.5\u00b0C.",
+    stats: [
+      { num: "420 ppm", lbl: "CO\u2082 today" },
+      { num: "+1.1\u00b0C", lbl: "Warming so far" },
+      { num: "40%", lbl: "Buildings\u2019 share of emissions" }
+    ],
+    tags: ["84% fossil fuels", "Buildings = \u2153 energy use", "+2.72 W/m\u00b2 forcing"]
+  },
+  {
+    label: "2013",
+    short: "West\nBranch",
+    color: "#185FA5",
+    bg: "#E6F1FB",
+    textc: "#042C53",
+    title: "\u2605 West Branch Library \u2014 proof of concept",
+    body: "In 2013, a 9,400 ft\u00b2 public library in Berkeley, California proved that net-zero energy is achievable at standard cost. It eliminated all Scope 1 and Scope 2 emissions, reduced embodied carbon, achieved 97% daylight autonomy, and ran at an annual energy cost of just $0.05/ft\u00b2 \u2014 the same cost as standard libraries that achieved none of this.",
+    stats: [
+      { num: "17.4", lbl: "Measured EUI (kBtu/ft\u00b2/yr)" },
+      { num: "83%", lbl: "Below existing baseline" },
+      { num: "$0.05/ft\u00b2", lbl: "Annual energy cost" }
+    ],
+    tags: ["Zero Scope 1", "Zero Scope 2", "11.6% recycled content", "58.2% less water", "30% less steel", "LEED Platinum", "ILFI ZNE certified"]
+  },
+  {
+    label: "2030",
+    short: "Paris\n2030",
+    color: "#534AB7",
+    bg: "#EEEDFE",
+    textc: "#26215C",
+    title: "2030 \u2014 the critical decade",
+    body: "The Paris Accord demands a 45% absolute cut in global GHG emissions from 2010 levels by 2030. For buildings, all new construction must achieve net-zero operational carbon. The AIA 2030 Challenge calls for all new buildings and major renovations to be carbon-neutral by this year. The existing stock must begin deep decarbonisation at scale.",
+    stats: [
+      { num: "\u221245%", lbl: "GHG cut from 2010 (global)" },
+      { num: "\u226430 kBtu", lbl: "EUI target, new commercial" },
+      { num: "100%", lbl: "New builds net-zero carbon" }
+    ],
+    tags: ["Mandatory EUI limits", "Grid electrification", "Embodied carbon caps", "Heat pump mandates"]
+  },
+  {
+    label: "2050",
+    short: "Net\nzero",
+    color: "#0F6E56",
+    bg: "#E1F5EE",
+    textc: "#04342C",
+    title: "2050 \u2014 net zero",
+    body: "Net-zero global emissions by 2050 is the ceiling condition for limiting warming to 1.5\u00b0C. The entire building stock \u2014 new and existing \u2014 must reach zero operational carbon. Embodied carbon must fall by approximately 40% from today\u2019s levels. The West Branch model, scaled globally, is what this transition looks like in practice.",
+    stats: [
+      { num: "Net zero", lbl: "Global GHG emissions" },
+      { num: "~40%", lbl: "Embodied carbon reduction" },
+      { num: "1.5\u00b0C", lbl: "Warming limit (Paris)" }
+    ],
+    tags: ["Full electrification", "Heat pumps at scale", "Deep retrofits", "Mass timber adoption", "Renewable grid"]
+  }
+];
+
+let active = 2;
+
+function render() {
+  const wrap = document.getElementById('milestones');
+  wrap.innerHTML = '';
+  milestones.forEach((m, i) => {
+    if (i > 0) {
+      const line = document.createElement('div');
+      line.className = 'connector';
+      wrap.appendChild(line);
+    }
+    const dw = document.createElement('div');
+    dw.className = 'dot-wrap';
+    const dot = document.createElement('div');
+    dot.className = 'dot' + (i === active ? ' active' : '');
+    dot.style.background = m.bg;
+    dot.style.borderColor = m.color;
+    dot.style.color = m.textc;
+    dot.style.opacity = i === active ? '1' : '0.55';
+    dot.innerHTML = m.short.replace('\n', '<br>');
+    dot.onclick = () => { active = i; render(); };
+    const lbl = document.createElement('div');
+    lbl.className = 'dot-label';
+    lbl.textContent = m.label;
+    dw.appendChild(dot);
+    dw.appendChild(lbl);
+    wrap.appendChild(dw);
+  });
+
+  const m = milestones[active];
+  const tagsHtml = m.tags.map(t =>
+    `<span class="tag" style="background:${m.bg};color:${m.textc};border-color:${m.color}44">${t}</span>`
+  ).join('');
+  const statsHtml = m.stats.map(s =>
+    `<div class="stat"><div class="stat-num" style="color:${m.color}">${s.num}</div><div class="stat-lbl">${s.lbl}</div></div>`
+  ).join('');
+  const badge = active === 2 ? `<div class="star-badge">\u2605 Case study used in this essay</div>` : '';
+
+  document.getElementById('panel').innerHTML = `
+    <div class="panel" style="border: 1.5px solid ${m.color}44;">
+      <div class="panel-header" style="background:${m.bg};">
+        ${badge}
+        <div class="panel-title" style="color:${m.textc}">${m.title}</div>
+        <div class="panel-body" style="color:${m.textc}aa">${m.body}</div>
+        ${tagsHtml ? `<div class="tags">${tagsHtml}</div>` : ''}
+      </div>
+      <div class="panel-content">
+        <div class="stats">${statsHtml}</div>
+      </div>
+    </div>
+  `;
+  document.getElementById('hint').style.display = 'none';
+}
+
+render();
+</script>
+</body>
+</html>
